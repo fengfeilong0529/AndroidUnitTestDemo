@@ -1,5 +1,6 @@
 package com.example.unittestdemo1;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,14 +16,22 @@ public class AlgoTestTest {
 
     @Test
     public void testAlog1() {
+        System.out.println("===testAlog1===");
     }
 
     @Before
     public void setUp() throws Exception {
+        System.out.println("===Before方法调用===");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        System.out.println("===After方法调用===");
     }
 
     @Test
     public void testAlog11() {
+        System.out.println("===testAlog11===");
         AlgoTest a = new AlgoTest();
         int i = a.testAlog1(10);
         //junit测试
@@ -32,6 +41,7 @@ public class AlgoTestTest {
 
     @Test
     public void testAlog2() {
+        System.out.println("===testAlog2===");
         AlgoTest a = new AlgoTest();
         String s = a.getstr();
         //普通的junit测试
