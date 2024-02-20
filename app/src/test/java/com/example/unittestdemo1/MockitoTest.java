@@ -16,10 +16,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -214,15 +216,65 @@ public class MockitoTest {
         List mock = mock(List.class);
 
         when(mock.get(0))
-//                .thenThrow(new RuntimeException())
+                .thenThrow(new RuntimeException())
                 .thenReturn("foo", "one", "two", "three");
 
         // First call: throws runtime exception:
-        mock.get(0);
+        try {
+            mock.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Second call: prints "foo"
         System.out.println(mock.get(0));
         // Any consecutive call: prints "foo" as well (last stubbing wins).
         System.out.println(mock.get(0));
+    }
+
+
+    /**
+     * spy监视真实对象
+     * 前面使用的都是 mock 出来一个对象。这样，当 没有配置/存根 其具体行为的话，结果就会返回 空类型。
+     * 而如果使用 特务对象（spy），那么对于 没有存根 的行为，它会调用 原来对象 的方法。可以把 spy 想象成局部 mock。
+     */
+    @Test
+    public void mockTest9() {
+        List list = new LinkedList();
+        List spy = spy(list);
+
+        // Optionally, you can stub out some methods:
+        when(spy.size()).thenReturn(100);
+        // Use the spy calls *real* methods
+        spy.add("one");
+        spy.add("two");
+
+        // Prints "one" - the first element of a list
+        System.out.println(spy.get(0));
+        // Size() method was stubbed - 100 is printed
+        System.out.println(spy.size());
+        // Optionally, you can verify
+        verify(spy).add("one");
+        verify(spy).add("two");
+    }
+
+    /**
+     * spy监视真实对象
+     * 由于 spy 是局部 mock，所以有时候使用 when(Object) 时，无法做到存根作用。
+     * 此时，就可以考虑使用 doReturn() | Answer() | Throw() 这类方法进行存根
+     */
+    @Test
+    public void mockTest10() {
+        List list = new LinkedList();
+        List spy = spy(list);
+        // Impossible: real method is called so spy.get(0) throws IndexOutOfBoundsException (the list is yet empty)
+        try {
+            when(spy.get(0)).thenReturn("foo");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // You have to use doReturn() for stubbing
+        doReturn("foo").when(spy).get(0);
+        System.out.println(spy.get(0));
     }
 
 
